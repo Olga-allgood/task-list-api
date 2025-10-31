@@ -13,23 +13,48 @@ def create_task():
     try:
         new_task = Task.from_dict(request_body)
     except KeyError as error:
-        response = {"message": "Invalid data"}  
+        response = {"details": "Invalid data"}  
         abort(make_response(response, 400))  
 
     db.session.add(new_task)
     db.session.commit()
     
-    return new_task.to_dict(), 201
+    return new_task.to_dict(), '201 CREATED'
 
+# @bp.get("")
+# def get_all_tasks():
+#     query = db.select(Task)
+
+#     title_param = request.args.get("title")
+#     if title_param == "/tasks?sort=desc":
+#         query = query.order_by(Task.title.desc())
+
+#     if title_param == "/tasks?sort=asc":
+#         query = query.order_by(Task.title.asc())
+            
+#     # tasks = db.session.scalars(query.order_by(Task.title))
+#     tasks = db.session.execute(query).scalars()
+
+#     task_response = []
+
+#     for task in tasks:
+#         task_response.append(task.to_dict())
+
+#     return task_response, 200
 @bp.get("")
 def get_all_tasks():
     query = db.select(Task)
-    tasks = db.session.scalars(query.order_by(Task.id))
 
-    task_response = []
+    sort_param = request.args.get("sort")
 
-    for task in tasks:
-        task_response.append(task.to_dict())
+    if sort_param == "desc":
+        query = query.order_by(Task.title.desc())
+    elif sort_param == "asc":
+        query = query.order_by(Task.title.asc())
+
+    tasks = db.session.execute(query).scalars()
+
+    task_response = [task.to_dict() for task in tasks]
 
     return task_response, 200
 
@@ -58,7 +83,7 @@ def delete_task(task_id):
     task = validate_task(task_id)
     db.session.delete(task)
     db.session.commit()
-
+    
     return Response(status = 204, mimetype = "application/json")
 
 def validate_task(task_id):
