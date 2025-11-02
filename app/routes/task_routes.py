@@ -1,10 +1,18 @@
 from flask import Blueprint
 
-from flask import Blueprint, Response, abort, make_response, request
+from flask import Blueprint, Response, abort, make_response, request, Request
+import requests
 from app.models.task import Task
 from ..db import db
+from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-bp = Blueprint("bp", __name__, url_prefix="/tasks")
+load_dotenv()
+
+bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+
+SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 
 @bp.post("")
 def create_task():
@@ -19,6 +27,7 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
     
+    # return new_task.to_dict()
     return new_task.to_dict(), '201 CREATED'
 
 # @bp.get("")
@@ -101,3 +110,36 @@ def validate_task(task_id):
         abort(make_response(not_found, 404))
 
     return task  
+
+
+@bp.patch("/<task_id>/mark_complete")
+def mark_task_complete(task_id):
+    task = validate_task(task_id)
+    task.completed_at = datetime.now()
+
+    db.session.commit()
+
+    slack_url = "https://slack.com/api/chat.postMessage"
+    headers = {
+        "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "channel": "slack-api-testing",
+        "text": f"Here is your completed task: {task.title}"
+    }
+    response = requests.post(slack_url, headers=headers, json=payload)
+    return Response(status=204, mimetype = "application/json")
+
+@bp.patch("/<task_id>/mark_incomplete")
+def mark_test_incomplete(task_id):
+    task = validate_task(task_id)
+    task.completed_at = None 
+
+    db.session.commit()
+
+    return Response(status=204, mimetype="application/json")
+
+    
+
+ 
