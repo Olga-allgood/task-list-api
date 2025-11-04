@@ -2,6 +2,7 @@
 from flask import Blueprint, Response, abort, make_response, request, Request
 import requests
 from app.models.goal import Goal
+from app.models.task import Task 
 from ..db import db
 # from datetime import datetime
 import os
@@ -76,3 +77,31 @@ def validate_goal(goal_id):
         abort(make_response(not_found, 404))
 
     return goal 
+
+@bp.get("/<goal_id>/tasks")
+def get_tasks_by_goal(goal_id):
+    goal = validate_goal(goal_id)
+    response = goal.to_dict()  
+    response["tasks"] = [task.to_dict() for task in goal.tasks]
+    return response, 200
+
+@bp.post("/<goal_id>/tasks")
+def post_tasks_to_goal(goal_id):
+    goal = validate_goal(goal_id)
+    request_body = request.get_json()
+
+# QUESTION 
+    task_ids = request_body.get("task_ids", [])
+
+    goal.tasks.clear()
+
+    for task_id in task_ids:
+        task = db.session.scalar(db.select(Task).where(Task.id == task_id))
+        if task:
+            task.goal_id = goal.id
+    db.session.commit()    
+
+    return make_response({
+        "id": goal.id,
+        "task_ids": [task.id for task in goal.tasks]
+    }, 200)
