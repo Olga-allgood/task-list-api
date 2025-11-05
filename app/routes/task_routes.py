@@ -15,46 +15,12 @@ bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 
 
-# QUESTION: why the request_body line cannot be moved into route_utilities?
-
 @bp.post("")
 def create_task():
     request_body = request.get_json()
 
     return create_model(Task, request_body)
 
-    # try:
-    #     new_task = Task.from_dict(request_body)
-    # except KeyError as error:
-    #     response = {"details": "Invalid data"}  
-    #     abort(make_response(response, 400))  
-
-    # db.session.add(new_task)
-    # db.session.commit()
-    
-    # # return new_task.to_dict()
-    # return new_task.to_dict(), '201 CREATED'
-
-# @bp.get("")
-# def get_all_tasks():
-#     query = db.select(Task)
-
-#     title_param = request.args.get("title")
-#     if title_param == "/tasks?sort=desc":
-#         query = query.order_by(Task.title.desc())
-
-#     if title_param == "/tasks?sort=asc":
-#         query = query.order_by(Task.title.asc())
-            
-#     # tasks = db.session.scalars(query.order_by(Task.title))
-#     tasks = db.session.execute(query).scalars()
-
-#     task_response = []
-
-#     for task in tasks:
-#         task_response.append(task.to_dict())
-
-#     return task_response, 200
 @bp.get("")
 def get_all_tasks():
     query = db.select(Task)
@@ -72,18 +38,10 @@ def get_all_tasks():
     return task_response, 200
   
 
-    # return get_models_with_filters(Task, request.args), 200
-
 @bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
     return task.to_dict(), 200   
-
-# @bp.get("/<task_id>")
-# def get_one_task(task_id):
-#     task = validate_model(Task, task_id)
-
-#     return task.to_dict(), 200
 
 @bp.put("/<task_id>")
 def update_task(task_id):
@@ -92,7 +50,6 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    # task.completed_at = request_body.get("completed_at", None)
     db.session.commit()
 
     return Response(status = 204, mimetype = "application/json")
@@ -104,22 +61,6 @@ def delete_task(task_id):
     db.session.commit()
     
     return Response(status = 204, mimetype = "application/json")
-
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         response = {"message": f"task {task_id} invalid"} 
-#         abort(make_response(response, 400))   
-
-#     query = db.select(Task).where(Task.id == task_id)  
-#     task = db.session.scalar(query)
-
-#     if not task:
-#         not_found = {"message": f"task {task_id} not found"}
-#         abort(make_response(not_found, 404))
-
-#     return task  
 
 
 @bp.patch("/<task_id>/mark_complete")

@@ -5,11 +5,8 @@ from .route_utilities import *
 from app.models.goal import Goal
 from app.models.task import Task 
 from ..db import db
-# from datetime import datetime
 import os
-# from dotenv import load_dotenv
 
-# load_dotenv()
 
 bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -19,28 +16,11 @@ def create_goal():
     request_body = request.get_json()
  
     return create_model(Goal, request_body)   
-
-    # try:
-    #     new_goal = Goal.from_dict(request_body)
-    # except KeyError as error:
-    #     response = {"details": "Invalid data"}  
-    #     abort(make_response(response, 400))  
-
-    # db.session.add(new_goal)
-    # db.session.commit()
    
 
 @bp.get("")
 def get_all_goals():
     return get_models_with_filters(Goal, request.args), 200
-    # query = db.select(Goal).order_by(Goal.id)
-    # goals = db.session.scalars(query).all()
-
-    # if not goals:
-    #     return [], 200
-    
-    # goal_response = [goal.to_dict() for goal in goals]
-    # return goal_response, 200 
     
 
 @bp.get("/<goal_id>")
@@ -66,21 +46,6 @@ def delete_one_goal(goal_id):
     return Response(status=204, mimetype="application/json")
     
 
-# def validate_goal(goal_id):
-#     try:
-#         goal_id = int(goal_id)
-#     except:
-#         response = {"message": f"goal {goal_id} invalid"} 
-#         abort(make_response(response, 400))   
-
-#     query = db.select(Goal).where(Goal.id == goal_id)  
-#     goal = db.session.scalar(query)
-
-#     if not goal:
-#         not_found = {"message": f"goal {goal_id} not found"}
-#         abort(make_response(not_found, 404))
-
-#     return goal 
 
 @bp.get("/<goal_id>/tasks")
 def get_tasks_by_goal(goal_id):
@@ -92,21 +57,6 @@ def get_tasks_by_goal(goal_id):
     }
     return response, 200
 
-# @bp.get("/<goal_id>/tasks")
-# def get_tasks_by_goal(goal_id):
-#     goal = validate_model(Goal, goal_id)
-#     response = goal.to_dict()  
-#     response["tasks"] = [task.to_dict() for task in goal.tasks]
-#     return response, 200
-
-
-# @bp.post("/<goal_id>/tasks")
-# def post_task_to_goal(goal_id):
-#     goal = validate_model(Goal, goal_id)
-#     request_body = request.get_json()
-
-#     request_body["goal_id"] = goal.id
-#     return create_model(Task, request_body)
    
 @bp.post("/<goal_id>/tasks")
 def post_task_to_goal(goal_id):
@@ -114,32 +64,16 @@ def post_task_to_goal(goal_id):
     request_body = request.get_json()
     task_ids = request_body.get("task_ids", [])
 
-    # Clear existing tasks to match test expectations
     goal.tasks.clear()
 
     for task_id in task_ids:
-        # Safely get each task from DB
         task = db.session.scalar(db.select(Task).where(Task.id == task_id))
         if task:
-            task.goal_id = goal.id  # assign goal
+            task.goal_id = goal.id  
             goal.tasks.append(task)
 
     db.session.commit()
 
-    # Return response exactly matching the test
     return {"id": goal.id, "task_ids": [task.id for task in goal.tasks]}, 200
 
-    # task_ids = request_body.get("task_ids", [])
 
-    # goal.tasks.clear()
-
-    # for task_id in task_ids:
-    #     task = db.session.scalar(db.select(Task).where(Task.id == task_id))
-    #     if task:
-    #         task.goal_id = goal.id
-    # db.session.commit()    
-
-    # return make_response({
-    #     "id": goal.id,
-    #     "task_ids": [task.id for task in goal.tasks]
-    # }, 200)
