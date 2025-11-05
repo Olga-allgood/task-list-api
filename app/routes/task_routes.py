@@ -21,7 +21,7 @@ SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 def create_task():
     request_body = request.get_json()
 
-    return create_model(Task, request_body), '201 CREATED'
+    return create_model(Task, request_body)
 
     # try:
     #     new_task = Task.from_dict(request_body)
@@ -57,26 +57,33 @@ def create_task():
 #     return task_response, 200
 @bp.get("")
 def get_all_tasks():
-    # query = db.select(Task)
+    query = db.select(Task)
 
-    # sort_param = request.args.get("sort")
+    sort_param = request.args.get("sort")
 
-    # if sort_param == "desc":
-    #     query = query.order_by(Task.title.desc())
-    # elif sort_param == "asc":
-    #     query = query.order_by(Task.title.asc())
+    if sort_param == "desc":
+        query = query.order_by(Task.title.desc())
+    elif sort_param == "asc":
+        query = query.order_by(Task.title.asc())
 
-    # tasks = db.session.execute(query).scalars()
+    tasks = db.session.execute(query).scalars()
 
-    # task_response = [task.to_dict() for task in tasks]
+    task_response = [task.to_dict() for task in tasks]
+    return task_response, 200
+  
 
-    return get_models_with_filters(Task, request.args), 200
+    # return get_models_with_filters(Task, request.args), 200
 
 @bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
+    return task.to_dict(), 200   
 
-    return task.to_dict(), 200
+# @bp.get("/<task_id>")
+# def get_one_task(task_id):
+#     task = validate_model(Task, task_id)
+
+#     return task.to_dict(), 200
 
 @bp.put("/<task_id>")
 def update_task(task_id):

@@ -86,7 +86,7 @@ def test_mark_incomplete_on_incomplete_task(client, one_task):
     assert db.session.scalar(query).completed_at == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_complete")
@@ -94,14 +94,15 @@ def test_mark_complete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
+    assert response_body == {"message":"task 1 not found"}
 
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+    # raise Exception("Complete test with assertion about response body")
+    # # *****************************************************************
+    # # **Complete test with assertion about response body***************
+    # # *****************************************************************
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -109,8 +110,11 @@ def test_mark_incomplete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
+    assert response_body == {"message":"task 1 not found"}
+    
 
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+
+    # raise Exception("Complete test with assertion about response body")
+    # # *****************************************************************
+    # # **Complete test with assertion about response body***************
+    # # *****************************************************************
