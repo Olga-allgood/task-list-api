@@ -14,12 +14,17 @@ class Goal(db.Model):
         return new_goal   
     
   
-    def to_dict(self):
+    def to_dict(self, has_tasks=False):
         data = {
             "id": self.id,
             "title": self.title
         }
-     
-        if self.tasks:
+
+        if has_tasks:
             data["tasks"] = [task.to_dict() for task in self.tasks]
-        return data
+
+        return data    
+     
+        # if self.tasks:
+        #     data["tasks"] = [task.to_dict() for task in self.tasks]
+        # return data

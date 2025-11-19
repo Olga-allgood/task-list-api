@@ -1,5 +1,5 @@
 from flask import Blueprint
-from .route_utilities import *
+from .route_utilities import validate_model, create_model, get_models_with_filters
 from flask import Blueprint, Response, abort, make_response, request, Request
 import requests
 from app.models.task import Task
@@ -21,21 +21,29 @@ def create_task():
 
     return create_model(Task, request_body)
 
+# @bp.get("")
+# def get_all_tasks():
+#     query = db.select(Task)
+
+#     sort_param = request.args.get("sort")
+
+#     if sort_param == "desc":
+#         query = query.order_by(Task.title.desc())
+#     elif sort_param == "asc":
+#         query = query.order_by(Task.title.asc())
+
+#     tasks = db.session.execute(query).scalars()
+
+#     task_response = [task.to_dict() for task in tasks]
+#     return task_response, 200
+
 @bp.get("")
 def get_all_tasks():
-    query = db.select(Task)
-
-    sort_param = request.args.get("sort")
-
-    if sort_param == "desc":
-        query = query.order_by(Task.title.desc())
-    elif sort_param == "asc":
-        query = query.order_by(Task.title.asc())
-
-    tasks = db.session.execute(query).scalars()
-
-    task_response = [task.to_dict() for task in tasks]
-    return task_response, 200
+    # tasks_response = get_models_with_filters(Task, filters=request.args)
+    # return tasks_response, 200
+    filters = dict(request.args)
+    tasks_response = get_models_with_filters(Task, filters=filters)
+    return tasks_response, 200
   
 
 @bp.get("/<task_id>")

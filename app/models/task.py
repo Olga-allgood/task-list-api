@@ -8,7 +8,7 @@ class Task(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str]
     description: Mapped[str]
-    completed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True, default=None)
+    completed_at: Mapped[Optional[datetime]]
     goal_id: Mapped[Optional[int]] = mapped_column(ForeignKey("goal.id"))
     goal: Mapped[Optional["Goal"]] = relationship(back_populates="tasks")
 
@@ -21,17 +21,18 @@ class Task(db.Model):
         
         return new_task
     
+    
     def to_dict(self):
-        tasks_as_dict = {}
-        tasks_as_dict["id"] = self.id
-        tasks_as_dict["title"] = self.title
-        tasks_as_dict["description"] = self.description
-        tasks_as_dict["is_complete"] = self.completed_at is not None
+        task_as_dict = {}
+        task_as_dict["id"] = self.id
+        task_as_dict["title"] = self.title
+        task_as_dict["description"] = self.description
+        task_as_dict["is_complete"] = self.completed_at is not None
         
         if self.goal:
-          tasks_as_dict["goal_id"] = self.goal_id
+          task_as_dict["goal_id"] = self.goal_id
         
-        return tasks_as_dict
+        return task_as_dict
     
         
     
