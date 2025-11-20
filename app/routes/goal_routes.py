@@ -50,6 +50,17 @@ def delete_one_goal(goal_id):
 @bp.get("/<goal_id>/tasks")
 def get_tasks_by_goal(goal_id):
     goal = validate_model(Goal, goal_id)
+    # request_body = request.get_json()
+    # task_ids = request_body.get("task_ids", [])
+
+    # for task_id in task_ids:
+    #     task = validate_model(Task, task_id)
+    #     # task = db.session.scalar(db.select(Task).where(Task.id == task_id))
+    #     if task:
+    #         # task.goal_id = goal.id  
+    #         goal.tasks.append(task)
+
+   
 
     return goal.to_dict(has_tasks=True), 200
     # response = {
