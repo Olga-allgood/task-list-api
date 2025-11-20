@@ -35,6 +35,8 @@ def test_route_utilities_validate_model_with_task_invalid_id(client, three_tasks
     # Test that the correct status code and response message are returned
     response = e.value.get_response()
     assert response.status_code == 400
+    response_body = response.get_json()
+    assert response_body == {"message": "task One invalid"}
     
 
     # raise Exception("Complete test with an assertion about the response body")
@@ -48,7 +50,9 @@ def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks
     with pytest.raises(HTTPException) as e:
         result_task = validate_model(Task, 4)
     response = e.value.get_response()
-    assert response.status_code == 404  
+    assert response.status_code == 404 
+    response_body = response.get_json()
+    assert response_body == {"message": "task 4 not found"} 
     
     # raise Exception("Complete test with assertion status code and response body")
     # *****************************************************************************
@@ -73,6 +77,9 @@ def test_route_utilities_validate_model_with_goal_invalid_id(client, one_goal):
 
     response = e.value.get_response()
     assert response.status_code == 400  
+    response_body = response.get_json()
+    assert response_body == {"message": "goal One invalid"}
+
      
     
     # raise Exception("Complete test with assertion status code and response body")
@@ -88,6 +95,9 @@ def test_route_utilities_validate_model_with_goal_missing_id(client, one_goal):
 
     response = e.value.get_response()
     assert response.status_code == 404  
+    response_body = response.get_json()
+    assert response_body == {"message": "goal 4 not found"}
+
     
     # raise Exception("Complete test with assertion status code and response body")
     # *****************************************************************************
@@ -157,7 +167,9 @@ def test_route_utilities_create_model_with_goal_missing_title(client):
 
     response = e.value.get_response()
     assert response.status_code == 400
-    assert response.get_json() == {"details": "Invalid data"}
+    response_body = response.get_json()
+    assert response_body == {"details": "Invalid data"}
+    
     
     
     # raise Exception("Complete test with assertion status code and response body")
